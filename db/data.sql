@@ -7,9 +7,6 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 SET NAMES utf8mb4;
 
-INSERT INTO `customers` (`id`, `firstname`, `lastname`, `email`, `password`) VALUES
-(1,	'John',	'Doe',	'john@doe.com',	'ab4f63f9ac65152575886860dde480a1');
-
 INSERT INTO `ingredients` (`id`, `name`) VALUES
 (1,	'Sauce tomate'),
 (2,	'Olives vertes'),
@@ -34,15 +31,24 @@ INSERT INTO `ingredients` (`id`, `name`) VALUES
 (21,	'Aubergines'),
 (22,	'Provola');
 
-INSERT INTO `orders` (`id`, `customer`, `createdAt`) VALUES
-(1,	1,	'2023-10-06 14:47:12');
+INSERT INTO `orders` (`id`, `amount`, `user_id`, `createdAt`, `status`) VALUES
+(1,	23,	2,	'2023-10-06 14:47:12',	'created'),
+(2,	15,	2,	'2023-10-07 19:18:20',	'created'),
+(3,	15.5,	2,	'2023-10-07 19:27:01',	'created'),
+(4,	30,	2,	'2023-10-07 19:32:41',	'created');
 
 INSERT INTO `orders_pizzas` (`order_id`, `pizza_id`, `quantity`) VALUES
 (1,	1,	1),
-(1,	2,	2);
+(1,	2,	2),
+(3,	1,	1),
+(3,	2,	1),
+(3,	3,	1),
+(4,	1,	1),
+(4,	2,	1),
+(4,	3,	1);
 
 INSERT INTO `pizzas` (`id`, `name`, `price`, `available`) VALUES
-(1,	'Margherita',	6,	1),
+(1,	'Margherita',	9,	1),
 (2,	'Quattro Stagioni',	12,	1),
 (3,	'Marinara',	5,	1),
 (4,	'Siciliana',	9,	1),
@@ -51,9 +57,7 @@ INSERT INTO `pizzas` (`id`, `name`, `price`, `available`) VALUES
 (7,	'Romana',	9,	1),
 (8,	'Parma',	12,	1),
 (9,	'Diavola',	8,	1),
-(10,	'Reggina',	10,	1),
-(11,	'Ortolana',	10,	0),
-(12,	'Rustica',	10,	0);
+(10,	'Regina',	10,	1);
 
 INSERT INTO `pizzas_ingredients` (`pizza_id`, `ingredient_id`) VALUES
 (1,	1),
@@ -96,4 +100,8 @@ INSERT INTO `pizzas_ingredients` (`pizza_id`, `ingredient_id`) VALUES
 (10,	9),
 (10,	12);
 
--- 2023-10-07 08:16:11
+INSERT INTO `users` (`id`, `role`, `firstname`, `lastname`, `email`, `password`) VALUES
+(1,	'admin',	'John',	'Doe',	'john@doe.com',	'ab4f63f9ac65152575886860dde480a1'),
+(2,	'customer',	'Jane',	'Doe',	'jane@doe.com',	'ab4f63f9ac65152575886860dde480a1');
+
+-- 2023-10-07 19:34:17

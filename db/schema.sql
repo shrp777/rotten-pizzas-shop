@@ -20,8 +20,9 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `amount` float NOT NULL,
   `user_id` int(11) NOT NULL,
-  `createdAt` datetime NOT NULL,
   `status` varchar(16) NOT NULL DEFAULT 'created',
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -69,8 +70,9 @@ CREATE TABLE `users` (
   `lastname` varchar(32) NOT NULL,
   `email` varchar(32) NOT NULL,
   `password` varchar(64) NOT NULL,
+  `loyaltyPoints` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- 2023-10-07 19:33:57
+-- 2023-10-08 19:30:07

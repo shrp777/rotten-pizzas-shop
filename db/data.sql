@@ -31,11 +31,11 @@ INSERT INTO `ingredients` (`id`, `name`) VALUES
 (21,	'Aubergines'),
 (22,	'Provola');
 
-INSERT INTO `orders` (`id`, `amount`, `user_id`, `createdAt`, `status`) VALUES
-(1,	23,	2,	'2023-10-06 14:47:12',	'created'),
-(2,	15,	2,	'2023-10-07 19:18:20',	'created'),
-(3,	15.5,	2,	'2023-10-07 19:27:01',	'created'),
-(4,	30,	2,	'2023-10-07 19:32:41',	'created');
+INSERT INTO `orders` (`id`, `amount`, `user_id`, `status`, `createdAt`, `updatedAt`) VALUES
+(1,	23,	2,	'ready',	'2023-10-06 14:47:12',	'2023-10-08 19:16:04'),
+(2,	10,	2,	'validated',	'2023-10-07 19:18:20',	'2023-10-08 18:57:05'),
+(3,	15.5,	2,	'created',	'2023-10-07 19:27:01',	NULL),
+(4,	30,	2,	'created',	'2023-10-07 19:32:41',	NULL);
 
 INSERT INTO `orders_pizzas` (`order_id`, `pizza_id`, `quantity`) VALUES
 (1,	1,	1),
@@ -100,8 +100,8 @@ INSERT INTO `pizzas_ingredients` (`pizza_id`, `ingredient_id`) VALUES
 (10,	9),
 (10,	12);
 
-INSERT INTO `users` (`id`, `role`, `firstname`, `lastname`, `email`, `password`) VALUES
-(1,	'admin',	'John',	'Doe',	'john@doe.com',	'ab4f63f9ac65152575886860dde480a1'),
-(2,	'customer',	'Jane',	'Doe',	'jane@doe.com',	'ab4f63f9ac65152575886860dde480a1');
+INSERT INTO `users` (`id`, `role`, `firstname`, `lastname`, `email`, `password`, `loyaltyPoints`) VALUES
+(1,	'admin',	'John',	'Doe',	'john@doe.com',	'ab4f63f9ac65152575886860dde480a1',	0),
+(2,	'customer',	'Jane',	'Doe',	'jane@doe.com',	'ab4f63f9ac65152575886860dde480a1',	30);
 
--- 2023-10-07 19:34:17
+-- 2023-10-08 19:30:24

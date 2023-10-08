@@ -114,8 +114,3 @@ router.delete("/:id", function (req, res) {
 });
 
 module.exports = router;
-/**
- * 🚨 Attention, le code présent dans ce fichier contient volontairement de nombreuses imperfections :
- * 🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
- * 🚨 Ce code servira de support à un exercice de refactoring.
- */

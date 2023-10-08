@@ -1,12 +1,14 @@
 # Rotten Pizzas Shop
 
-Attention ! Ce projet contient volontairement des failles de sécurité et mauvaises pratiques de développement.
+🚨 Attention, le code présent dans ce projet contient volontairement de nombreuses imperfections :
+🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
+🚨 Ce code servira de support à un exercice de refactoring.
 
 Votre objectif est :
-    - analyser le code source,
-    - identifier les erreurs,
-    - corriger les erreurs avec la stack technologique employée dans le projet ou celle de votre choix,
-    - mettre en place une stratégie permettant d'assurer la qualité du logiciel (tests, audit,intégration continue...)
+    - d'analyser le code source,
+    - d'identifier les erreurs,
+    - de corriger les erreurs avec la stack technologique initiale (ou celle de votre choix),
+    - de mettre en place une stratégie permettant d'assurer la qualité du logiciel (tests, audit, intégration continue, absence de régression...).
 
 --
 

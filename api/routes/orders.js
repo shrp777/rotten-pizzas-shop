@@ -5,8 +5,8 @@
  */
 
 const express = require("express");
-const router = express.Router();
-const jwt = require("jsonwebtoken");
+var router = express.Router();
+var jwt = require("jsonwebtoken");
 
 const mysql = require("mysql");
 const connection = mysql.createConnection({
@@ -31,11 +31,11 @@ router.post("/", function (req, res) {
       (err, rows, fields) => {
         if (err) console.log(err);
 
-        const orderId = rows.insertId;
+        const Id_commande = rows.insertId;
 
-        for (const pizzaId of req.body.pizzas) {
+        for (var pizzaId of req.body.pizzas) {
           connection.query(
-            `INSERT INTO orders_pizzas (order_id, pizza_id, quantity) VALUES (${orderId},${pizzaId},1)`,
+            `INSERT INTO orders_pizzas (order_id, pizza_id, quantity) VALUES (${Id_commande},${pizzaId},1)`,
             (err, rows, fields) => {
               if (err) console.log(err);
             }
@@ -101,6 +101,10 @@ router.patch("/:id", function (req, res) {
     const query = `UPDATE orders SET id = ${req.params.id}, status = "${req.body.status}", updatedAt=NOW() WHERE id = ${req.params.id}`;
 
     if (req.body.status == "validated") {
+      /* 
+      TODO:vérifier qu'il y a bien du stock
+      */
+
       const query2 = `SELECT * FROM orders WHERE id = ${req.params.id}`;
 
       connection.query(query2, (err, rows, fields) => {
@@ -131,6 +135,38 @@ router.patch("/:id", function (req, res) {
           });
         });
       });
+      try {
+        var query_PizzasInOrder =
+          "SELECT * FROM orders_pizzas WHERE order_id=" + req.params.id;
+
+        connection.query(query_PizzasInOrder, (err, rows, fields) => {
+          if (err) throw err;
+
+          let pizzas = rows;
+          rows.forEach((element) => {
+            const queryIngredients = `SELECT * FROM ingredients as ig INNER JOIN pizzas_ingredients as pi ON pi.ingredient_id = ig.id AND pi.pizza_id = ${element.pizza_id};`;
+
+            connection.query(queryIngredients, (err, rows, fields) => {
+              if (err) console.log(err);
+
+              for (let index = 0; index < rows.length; index++) {
+                const element = rows[index];
+
+                let requete_Mise_A_jour_Stock_Ingredient = `UPDATE ingredients SET stock=${
+                  element.stock - 10
+                } WHERE id = ${element.id}`;
+                connection.query(
+                  requete_Mise_A_jour_Stock_Ingredient,
+                  (err, rows, fields) => {}
+                );
+                if (err) console.log(err);
+              }
+            });
+          });
+        });
+      } catch (error) {
+        console.log(error);
+      }
     } else {
       connection.query(query, (err, rows, fields) => {
         if (err) console.log(err);

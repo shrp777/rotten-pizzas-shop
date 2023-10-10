@@ -7,29 +7,29 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 SET NAMES utf8mb4;
 
-INSERT INTO `ingredients` (`id`, `name`) VALUES
-(1,	'Sauce tomate'),
-(2,	'Olives vertes'),
-(3,	'Olives noires'),
-(4,	'Coeurs d\'artichaut'),
-(5,	'Mozzarella'),
-(6,	'Basilic'),
-(7,	'Ail'),
-(8,	'Piment'),
-(9,	'Jambon'),
-(10,	'Parmesan'),
-(11,	'Roquette'),
-(12,	'Champignons'),
-(13,	'Poivrons'),
-(14,	'Saucisson piquant'),
-(15,	'Oignon'),
-(16,	'Origan'),
-(17,	'Anchois'),
-(18,	'Gorgonzola'),
-(19,	'Jambon de Parme'),
-(20,	'Crème'),
-(21,	'Aubergines'),
-(22,	'Provola');
+INSERT INTO `ingredients` (`id`, `name`, `stock`) VALUES
+(1,	'Sauce tomate',	70),
+(2,	'Olives vertes',	70),
+(3,	'Olives noires',	100),
+(4,	'Coeurs d\'artichaut',	70),
+(5,	'Mozzarella',	70),
+(6,	'Basilic',	70),
+(7,	'Ail',	100),
+(8,	'Piment',	100),
+(9,	'Jambon',	70),
+(10,	'Parmesan',	100),
+(11,	'Roquette',	100),
+(12,	'Champignons',	70),
+(13,	'Poivrons',	100),
+(14,	'Saucisson piquant',	100),
+(15,	'Oignon',	100),
+(16,	'Origan',	100),
+(17,	'Anchois',	100),
+(18,	'Gorgonzola',	100),
+(19,	'Jambon de Parme',	100),
+(20,	'Crème',	100),
+(21,	'Aubergines',	100),
+(22,	'Provola',	100);
 
 INSERT INTO `orders` (`id`, `amount`, `user_id`, `status`, `createdAt`, `updatedAt`) VALUES
 (1,	23,	2,	'ready',	'2023-10-06 14:47:12',	'2023-10-08 19:16:04'),
@@ -42,9 +42,9 @@ INSERT INTO `orders_pizzas` (`order_id`, `pizza_id`, `quantity`) VALUES
 (1,	2,	2),
 (3,	1,	1),
 (3,	2,	1),
-(3,	3,	1),
+(3,	3,	3),
 (4,	1,	1),
-(4,	2,	1),
+(4,	2,	0),
 (4,	3,	1);
 
 INSERT INTO `pizzas` (`id`, `name`, `price`, `available`) VALUES
@@ -57,7 +57,8 @@ INSERT INTO `pizzas` (`id`, `name`, `price`, `available`) VALUES
 (7,	'Romana',	9,	1),
 (8,	'Parma',	12,	1),
 (9,	'Diavola',	8,	1),
-(10,	'Regina',	10,	1);
+(10,	'Regina',	10,	1),
+(11,	'Margherita',	10,	1);
 
 INSERT INTO `pizzas_ingredients` (`pizza_id`, `ingredient_id`) VALUES
 (1,	1),
@@ -98,10 +99,13 @@ INSERT INTO `pizzas_ingredients` (`pizza_id`, `ingredient_id`) VALUES
 (10,	5),
 (10,	3),
 (10,	9),
-(10,	12);
+(10,	12),
+(11,	1),
+(11,	6),
+(11,	5);
 
 INSERT INTO `users` (`id`, `role`, `firstname`, `lastname`, `email`, `password`, `loyaltyPoints`) VALUES
 (1,	'admin',	'John',	'Doe',	'john@doe.com',	'ab4f63f9ac65152575886860dde480a1',	0),
-(2,	'customer',	'Jane',	'Doe',	'jane@doe.com',	'ab4f63f9ac65152575886860dde480a1',	30);
+(2,	'customer',	'Jane',	'Doe',	'jane@doe.com',	'ab4f63f9ac65152575886860dde480a1',	130);
 
--- 2023-10-08 19:30:24
+-- 2023-10-10 21:09:57

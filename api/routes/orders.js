@@ -5,11 +5,11 @@
  */
 
 const express = require("express");
-var router = express.Router();
-var jwt = require("jsonwebtoken");
+const router = express.Router();
+const jwt = require("jsonwebtoken");
 
-const mysql = require("mysql");
-const connection = mysql.createConnection({
+var mysql = require("mysql");
+var connection = mysql.createConnection({
   host: "db",
   user: "rps",
   password: "azerty",
@@ -33,7 +33,7 @@ router.post("/", function (req, res) {
 
         const Id_commande = rows.insertId;
 
-        for (var pizzaId of req.body.pizzas) {
+        for (let pizzaId of req.body.pizzas) {
           connection.query(
             `INSERT INTO orders_pizzas (order_id, pizza_id, quantity) VALUES (${Id_commande},${pizzaId},1)`,
             (err, rows, fields) => {
@@ -110,8 +110,8 @@ router.patch("/:id", function (req, res) {
       connection.query(query2, (err, rows, fields) => {
         if (err) console.log(err);
 
-        var amount = rows[0].amount;
-        var user_id = rows[0].user_id;
+        let amount = rows[0].amount;
+        let user_id = rows[0].user_id;
 
         const query3 = `SELECT * FROM users WHERE id = ${user_id}`;
 
@@ -119,11 +119,11 @@ router.patch("/:id", function (req, res) {
           if (err) console.log(err);
 
           if (amount < 10) {
-            var loyaltyPoints = rows[0].loyaltyPoints + 10;
+            let loyaltyPoints = rows[0].loyaltyPoints + 10;
           } else if (amount > 10) {
-            var loyaltyPoints = rows[0].loyaltyPoints + 20;
+            let loyaltyPoints = rows[0].loyaltyPoints + 20;
           } else if (amount > 20) {
-            var loyaltyPoints = rows[0].loyaltyPoints + 30;
+            let loyaltyPoints = rows[0].loyaltyPoints + 30;
           }
 
           const query4 = `UPDATE users SET loyaltyPoints=${loyaltyPoints} WHERE id = ${user_id}`;
@@ -136,7 +136,7 @@ router.patch("/:id", function (req, res) {
         });
       });
       try {
-        var query_PizzasInOrder =
+        let query_PizzasInOrder =
           "SELECT * FROM orders_pizzas WHERE order_id=" + req.params.id;
 
         connection.query(query_PizzasInOrder, (err, rows, fields) => {

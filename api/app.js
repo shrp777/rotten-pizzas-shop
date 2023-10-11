@@ -11,9 +11,31 @@ const orders = require("./routes/orders");
 const pizzas = require("./routes/pizzas");
 const auth = require("./routes/auth");
 
+const mysql = require("mysql");
+const connection = mysql.createConnection({
+  host: "db",
+  user: "rps",
+  password: "azerty",
+  database: "rps"
+});
+
+connection.connect(function (err) {
+  if (err) {
+    console.error("error connecting: " + err.stack);
+    return;
+  }
+
+  console.log("connected as id " + connection.threadId);
+});
+
 app.use("/orders", orders);
 app.use("/pizzas", pizzas);
 app.use("/auth", auth);
+// connection.end(function (err) {
+//   if (err) console.log(err);
+//   // The connection is terminated now
+// });
+connection.destroy();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

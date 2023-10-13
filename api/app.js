@@ -33,11 +33,11 @@ connection.connect(function (err) {
 app.use("/orders", orders);
 app.use("/pizzas", pizzas); 
 app.use("/auth", auth);
-// connection.end(function (err) {
-//   if (err) console.log(err);
-//   // The connection is terminated now
-// });
-connection.destroy();
+connection.end(function (err) {
+  if (err) console.log(err);
+  // The connection is terminated now
+});
+// connection.destroy();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

@@ -3,6 +3,8 @@
  * 🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
  * 🚨 Ce code servira de support à un exercice de refactoring.
  */
+
+//test sonarcloud
 const express = require("express");
 const app = express();
 const port = 3000;

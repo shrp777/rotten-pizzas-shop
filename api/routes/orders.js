@@ -24,6 +24,7 @@ router.use(express.urlencoded({ extended: true }));
 
 
 router.post("/", function (req, res) { 
+  
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {

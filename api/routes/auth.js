@@ -13,17 +13,23 @@ const router = express.Router();
 var mysql = require("mysql");
 var connection = mysql.createConnection({
   host: "db",
-  user: "rps",
-  password: "azerty",
+  user: "rps", 
+  password: "azerty",  
   database: "rps"
 });
 
 connection.connect();
 
 router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+router.post("/test", (req,res) => {
+  console.log(req.body)
+  res.json("toto") 
+})
+
 
 //SIGNUP
-router.post("/signup", (req, res) => {
+router.post("/signup", (req, res) => { 
   let pwd = md5(req.body.password);
 
   connection.query(

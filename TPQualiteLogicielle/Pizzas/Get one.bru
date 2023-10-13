@@ -1,0 +1,19 @@
+meta {
+  name: Get one
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/pizzas?id=1
+  body: none
+  auth: bearer
+}
+
+query {
+  id: 1
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTcxODEwNjl9.zPYIGVZHs9t7celnC_4k9kZuGvBNbFBN3x8GpiER5aw
+}

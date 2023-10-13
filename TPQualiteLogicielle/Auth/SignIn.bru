@@ -1,0 +1,19 @@
+meta {
+  name: SignIn
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/auth/signup
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  firstname: ilies
+  lastname: benyahia
+  role: iss
+  email: totomail
+  password: t
+}

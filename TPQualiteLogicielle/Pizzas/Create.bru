@@ -1,0 +1,21 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/pizzas
+  body: formUrlEncoded
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTcxODA4NTd9.sMo8vc8jcyFWOhC45ZaiAQhiwwbcKGocvBS_HSADeGU
+}
+
+body:form-urlencoded {
+  name: hawaienne
+  price: 10
+  available: 1
+}

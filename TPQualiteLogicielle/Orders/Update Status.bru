@@ -1,0 +1,15 @@
+meta {
+  name: Update Status
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/orders/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNjk3MTkyMTU4fQ.0tXAoOousKaA16uCr3Y21LeQVoF2ntY602mmd8m9y1I
+}

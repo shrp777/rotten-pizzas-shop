@@ -18,9 +18,12 @@ var connection = mysql.createConnection({
 connection.connect();
 
 router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
 
+//test son
 //CREATE
 router.post("/", function (req, res) {
+  console.log(req.headers.authorization) 
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
@@ -86,6 +89,7 @@ router.put("/:id", function (req, res) {
 
 //READ ONE BY ID
 router.get("/:id", function (req, res) {
+  console.log('toto')
   const query = `SELECT * FROM pizzas WHERE available = 1 AND id =${req.params.id}`;
 
   connection.query(query, (err, rows, fields) => {

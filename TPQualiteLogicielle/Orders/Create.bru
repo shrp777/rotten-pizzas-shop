@@ -1,0 +1,28 @@
+meta {
+  name: Create
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/orders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNjk3MTkyMTU4fQ.0tXAoOousKaA16uCr3Y21LeQVoF2ntY602mmd8m9y1I
+}
+
+body:json {
+  {
+    "id": 1,
+    "amount": 10,
+    "pizzas": [1, 2, 3] // Vous pouvez spécifier les identifiants des pizzas ici
+  }
+}
+
+body:form-urlencoded {
+  id: 1
+  amount: 10
+}

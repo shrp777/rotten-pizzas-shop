@@ -1,0 +1,21 @@
+meta {
+  name: Update One
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/pizzas/1
+  body: formUrlEncoded
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2OTcxODEwNjl9.zPYIGVZHs9t7celnC_4k9kZuGvBNbFBN3x8GpiER5aw
+}
+
+body:form-urlencoded {
+  name: 100 FROMAGES
+  price: 100
+  available: 1
+}

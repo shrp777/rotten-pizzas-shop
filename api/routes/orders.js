@@ -21,13 +21,15 @@ connection.connect();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 //CREATE
+
+
 router.post("/", function (req, res) { 
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
     if (err) res.json("unauthorized");
     connection.query(
-      `INSERT INTO orders (user_id, amount, createdAt) VALUES (${req.body.id}, ${req.body.amount}, NOW())`,
+      `INSERT INTO orders (user_id, amount, createdAt) VALUES (${req.body.id}, ${req.body.amount}, '2023-10-07 19:27:01')`,
       (err, rows, fields) => {
         if (err) console.log(err);
 
@@ -81,12 +83,12 @@ router.put("/:id", function (req, res) {
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
     if (err) res.json("unauthorized");
 
-    const query = `UPDATE orders SET id = ${req.body.id}, user_id=${req.body.user_id} status = "${req.body.status}", amount = ${req.body.amount}, updatedAt=NOW() WHERE id = ${req.body.id}`;
+    const query = `UPDATE orders SET user_id=${req.body.user_id}, status="${req.body.status}", amount=${req.body.amount}, updatedAt='2023-10-07 19:27:01' WHERE id=${req.body.id}`;
 
     connection.query(query, (err, rows, fields) => {
       if (err) console.log(err);
 
-      res.json("updated");
+      res.json(query);
     });
   });
 });
@@ -98,22 +100,23 @@ router.patch("/:id", function (req, res) {
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
     if (err) res.json("unauthorized");
 
-    const query = `UPDATE orders SET id = ${req.params.id}, status = "${req.body.status}", updatedAt=NOW() WHERE id = ${req.params.id}`;
-
+    const query = `UPDATE orders SET status="${req.body.status}", updatedAt='2023-10-07 19:27:01' WHERE id=${req.params.id}`;
+    console.log(query);
     if (req.body.status == "validated") {
       /* 
       TODO:vérifier qu'il y a bien du stock
       */
 
-      const query2 = `SELECT * FROM orders WHERE id = ${req.params.id}`;
-
+      const query2 = `SELECT * FROM orders WHERE id=${req.body.id}`;
+      console.log(query2);
       connection.query(query2, (err, rows, fields) => {
         if (err) console.log(err);
 
         let amount = rows[0].amount;
         let user_id = rows[0].user_id;
 
-        const query3 = `SELECT * FROM users WHERE id = ${user_id}`;
+        const query3 = `SELECT * FROM users WHERE id=${user_id}`;
+        console.log(query3);
 
         connection.query(query3, (err, rows, fields) => {
           if (err) console.log(err);
@@ -126,7 +129,8 @@ router.patch("/:id", function (req, res) {
             let loyaltyPoints = rows[0].loyaltyPoints + 30;
           }
 
-          const query4 = `UPDATE users SET loyaltyPoints=${loyaltyPoints} WHERE id = ${user_id}`;
+          const query4 = `UPDATE users SET loyaltyPoints=${loyaltyPoints} WHERE id=${user_id}`;
+          console.log(query4);
 
           connection.query(query4, (err, rows, fields) => {
             if (err) console.log(err);
@@ -137,7 +141,7 @@ router.patch("/:id", function (req, res) {
       });
       try {
         let query_PizzasInOrder =
-          "SELECT * FROM orders_pizzas WHERE order_id=" + req.params.id;
+          "SELECT * FROM orders_pizzas WHERE order_id=" + req.body.id;
 
         connection.query(query_PizzasInOrder, (err, rows, fields) => {
           if (err) throw err;

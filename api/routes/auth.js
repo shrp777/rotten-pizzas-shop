@@ -5,7 +5,8 @@
  */
 
 const jwt = require("jsonwebtoken");
-const md5 = require("md5");
+const crypto = require("crypto"); // Utilisation du module crypto au lieu de md5
+
 
 const express = require("express");
 const router = express.Router();
@@ -30,7 +31,7 @@ router.post("/test", (req,res) => {
 
 //SIGNUP
 router.post("/signup", (req, res) => { 
-  let pwd = md5(req.body.password);
+  let pwd = crypto.createHash("sha256").update(req.body.password).digest("hex"); // Utilisation de SHA-256
 
   connection.query(
     `INSERT INTO users (firstname, lastname, email, role, password) VALUES ("${req.body.firstname}","${req.body.lastname}","${req.body.email}","${req.body.role}","${pwd}")`,
@@ -46,7 +47,7 @@ router.post("/signup", (req, res) => {
 
 //SIGNIN
 router.post("/signin", (req, res) => {
-  let pwd = md5(req.body.password);
+  let pwd = crypto.createHash("sha256").update(req.body.password).digest("hex"); // Utilisation de SHA-256
 
   connection.query(
     `SELECT * FROM users WHERE email = "${req.body.email}"`,

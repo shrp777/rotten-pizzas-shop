@@ -1,66 +1,102 @@
-/**
- * 🚨 Attention, le code présent dans ce fichier contient volontairement de nombreuses imperfections :
- * 🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
- * 🚨 Ce code servira de support à un exercice de refactoring.
- */
-
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto"); // Utilisation du module crypto au lieu de md5
-
-
 const express = require("express");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-var mysql = require("mysql");
-var connection = mysql.createConnection({
+const mysql = require("mysql");
+const connection = mysql.createConnection({
   host: "db",
-  user: "rps", 
-  password: "azerty",  
-  database: "rps"
+  user: "rps",
+  password: "azerty",
+  database: "rps",
 });
 
 connection.connect();
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
-router.post("/test", (req,res) => {
-  console.log(req.body)
-  res.json("toto") 
-})
 
+// Fonction pour gérer les erreurs
+function handleResponse(res, error, result) {
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  } else {
+    res.status(200).json(result);
+  }
+}
 
-//SIGNUP
-router.post("/signup", (req, res) => { 
-  let pwd = crypto.createHash("sha256").update(req.body.password).digest("hex"); // Utilisation de SHA-256
-
-  connection.query(
-    `INSERT INTO users (firstname, lastname, email, role, password) VALUES ("${req.body.firstname}","${req.body.lastname}","${req.body.email}","${req.body.role}","${pwd}")`,
-    function (err, rows, fields) {
-      if (err) console.log(err);
-
-      let token = jwt.sign({ id: rows.insertId }, process.env.JWT_KEY);
-
-      res.json({ token: token });
+// SIGNUP
+router.post("/signup", (req, res) => {
+  // Utilisation de la bibliothèque bcrypt pour le hachage sécurisé des mots de passe
+  bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Password hashing failed" });
     }
-  );
-});
 
-//SIGNIN
-router.post("/signin", (req, res) => {
-  let pwd = crypto.createHash("sha256").update(req.body.password).digest("hex"); // Utilisation de SHA-256
+    const user = {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      email: req.body.email,
+      role: req.body.role,
+      password: hashedPassword,
+    };
 
-  connection.query(
-    `SELECT * FROM users WHERE email = "${req.body.email}"`,
-    function (err, rows, fields) {
-      if (err) console.log(err);
+    connection.query(
+      `INSERT INTO users (firstname, lastname, email, role, password) VALUES (?, ?, ?, ?, ?)`,
+      [
+        user.firstname,
+        user.lastname,
+        user.email,
+        user.role,
+        user.password,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Database error" });
+        }
 
-      if (pwd == rows[0].password) {
-        let token = jwt.sign({ id: rows.insertId }, process.env.JWT_KEY);
+        let token = jwt.sign({ id: result.insertId }, process.env.JWT_KEY);
 
         res.json({ token: token });
-      } else {
-        res.json("error");
       }
+    );
+  });
+});
+
+// SIGNIN
+router.post("/signin", (req, res) => {
+  connection.query(
+    `SELECT * FROM users WHERE email = ?`,
+    [req.body.email],
+    (err, rows) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      if (rows.length === 0) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      const user = rows[0];
+
+      // Utilisation de bcrypt pour comparer le mot de passe
+      bcrypt.compare(req.body.password, user.password, (err, passwordMatch) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Password comparison failed" });
+        }
+
+        if (passwordMatch) {
+          let token = jwt.sign({ id: user.id }, process.env.JWT_KEY);
+          res.json({ token: token });
+        } else {
+          res.status(401).json({ error: "Authentication failed" });
+        }
+      });
     }
   );
 });

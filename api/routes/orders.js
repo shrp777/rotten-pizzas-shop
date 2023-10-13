@@ -1,195 +1,141 @@
-/**
- * 🚨 Attention, le code présent dans ce fichier contient volontairement de nombreuses imperfections :
- * 🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
- * 🚨 Ce code servira de support à un exercice de refactoring.
- */
-
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const mysql = require("mysql");
 
-var mysql = require("mysql");
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "db",
   user: "rps",
   password: "azerty",
-  database: "rps"
+  database: "rps",
 });
 
 connection.connect();
 
 router.use(express.json());
-router.use(express.urlencoded({ extended: true }));
-//CREATE
 
+// Fonction pour gérer les réponses JSON
+function handleResponse(res, status, data) {
+  res.status(status).json(data);
+}
 
-router.post("/", function (req, res) { 
-  
-  let token = req.headers.authorization.split(" ")[1];
+// Middleware de vérification du token JWT
+function verifyToken(req, res, next) {
+  const token = req.headers.authorization.split(" ")[1];
 
-  jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
-    connection.query(
-      `INSERT INTO orders (user_id, amount, createdAt) VALUES (${req.body.id}, ${req.body.amount}, '2023-10-07 19:27:01')`,
-      (err, rows, fields) => {
-        if (err) console.log(err);
-
-        const Id_commande = rows.insertId;
-
-        for (let pizzaId of req.body.pizzas) {
-          connection.query(
-            `INSERT INTO orders_pizzas (order_id, pizza_id, quantity) VALUES (${Id_commande},${pizzaId},1)`,
-            (err, rows, fields) => {
-              if (err) console.log(err);
-            }
-          );
-        }
-      }
-    );
-  });
-});
-
-//READ ALL
-router.get("/", function (req, res) {
-  //FILTER BY USER ID
-  if (req.query.user_id) {
-    const query = `SELECT * FROM orders WHERE user_id = "${req.query.user_id}"`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(rows);
-    });
-  } else if (req.query.status) {
-    const query = `SELECT * FROM orders WHERE status = ${req.query.status}`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(rows);
-    });
-  } else {
-    connection.query("SELECT * FROM orders", (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(rows);
-    });
-  }
-});
-
-//UPDATE ONE BY ID
-router.put("/:id", function (req, res) {
-  let token = req.headers.authorization.split(" ")[1];
-
-  jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
-
-    const query = `UPDATE orders SET user_id=${req.body.user_id}, status="${req.body.status}", amount=${req.body.amount}, updatedAt='2023-10-07 19:27:01' WHERE id=${req.body.id}`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(query);
-    });
-  });
-});
-
-//UPDATE STATUS BY ID
-router.patch("/:id", function (req, res) {
-  let token = req.headers.authorization.split(" ")[1];
-
-  jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
-
-    const query = `UPDATE orders SET status="${req.body.status}", updatedAt='2023-10-07 19:27:01' WHERE id=${req.params.id}`;
-    console.log(query);
-    if (req.body.status == "validated") {
-      /* 
-      TODO:vérifier qu'il y a bien du stock
-      */
-
-      const query2 = `SELECT * FROM orders WHERE id=${req.body.id}`;
-      console.log(query2);
-      connection.query(query2, (err, rows, fields) => {
-        if (err) console.log(err);
-
-        let amount = rows[0].amount;
-        let user_id = rows[0].user_id;
-
-        const query3 = `SELECT * FROM users WHERE id=${user_id}`;
-        console.log(query3);
-
-        connection.query(query3, (err, rows, fields) => {
-          if (err) console.log(err);
-
-          if (amount < 10) {
-            let loyaltyPoints = rows[0].loyaltyPoints + 10;
-          } else if (amount > 10) {
-            let loyaltyPoints = rows[0].loyaltyPoints + 20;
-          } else if (amount > 20) {
-            let loyaltyPoints = rows[0].loyaltyPoints + 30;
-          }
-
-          const query4 = `UPDATE users SET loyaltyPoints=${loyaltyPoints} WHERE id=${user_id}`;
-          console.log(query4);
-
-          connection.query(query4, (err, rows, fields) => {
-            if (err) console.log(err);
-
-            res.json("updated");
-          });
-        });
-      });
-      try {
-        let query_PizzasInOrder =
-          "SELECT * FROM orders_pizzas WHERE order_id=" + req.body.id;
-
-        connection.query(query_PizzasInOrder, (err, rows, fields) => {
-          if (err) throw err;
-
-          let pizzas = rows;
-          rows.forEach((element) => {
-            const queryIngredients = `SELECT * FROM ingredients as ig INNER JOIN pizzas_ingredients as pi ON pi.ingredient_id = ig.id AND pi.pizza_id = ${element.pizza_id};`;
-
-            connection.query(queryIngredients, (err, rows, fields) => {
-              if (err) console.log(err);
-
-              for (let index = 0; index < rows.length; index++) {
-                const element = rows[index];
-
-                let requete_Mise_A_jour_Stock_Ingredient = `UPDATE ingredients SET stock=${
-                  element.stock - 10
-                } WHERE id = ${element.id}`;
-                connection.query(
-                  requete_Mise_A_jour_Stock_Ingredient,
-                  (err, rows, fields) => {}
-                );
-                if (err) console.log(err);
-              }
-            });
-          });
-        });
-      } catch (error) {
-        console.log(error);
-      }
+  jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
+    if (err) {
+      handleResponse(res, 401, { error: "Unauthorized" });
     } else {
-      connection.query(query, (err, rows, fields) => {
-        if (err) console.log(err);
+      next();
+    }
+  });
+}
 
-        res.json("updated");
-      });
+// CREATE
+router.post("/", verifyToken, (req, res) => {
+  const orderData = {
+    user_id: req.body.user_id,
+    amount: req.body.amount,
+    createdAt: new Date().toISOString().slice(0, 19).replace("T", " "),
+  };
+
+  connection.query("INSERT INTO orders SET ?", orderData, (err, result) => {
+    if (err) {
+      handleResponse(res, 500, { error: "Internal Server Error" });
+    } else {
+      const orderId = result.insertId;
+      const pizzas = req.body.pizzas.map((pizzaId) => [orderId, pizzaId, 1]);
+
+      connection.query(
+        "INSERT INTO orders_pizzas (order_id, pizza_id, quantity) VALUES ?",
+        [pizzas],
+        (err) => {
+          if (err) {
+            handleResponse(res, 500, { error: "Internal Server Error" });
+          } else {
+            handleResponse(res, 200, { message: "Order created" });
+          }
+        }
+      );
     }
   });
 });
 
-//READ ONE BY ID
-router.get("/:id", function (req, res) {
-  const query = `SELECT * FROM orders WHERE id =${req.params.id}`;
+// READ ALL
+router.get("/", verifyToken, (req, res) => {
+  const filterBy = req.query.user_id
+    ? `user_id = ${req.query.user_id}`
+    : req.query.status
+    ? `status = "${req.query.status}"`
+    : "1";
 
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err);
+  const query = `SELECT * FROM orders WHERE ${filterBy}`;
 
-    res.json(rows);
+  connection.query(query, (err, rows) => {
+    if (err) {
+      handleResponse(res, 500, { error: "Internal Server Error" });
+    } else {
+      handleResponse(res, 200, rows);
+    }
+  });
+});
+
+// UPDATE ONE BY ID
+router.put("/:id", verifyToken, (req, res) => {
+  const orderId = req.params.id;
+  const orderData = {
+    user_id: req.body.user_id,
+    status: req.body.status,
+    amount: req.body.amount,
+    updatedAt: new Date().toISOString().slice(0, 19).replace("T", " "),
+  };
+
+  connection.query(
+    "UPDATE orders SET ? WHERE id = ?",
+    [orderData, orderId],
+    (err, result) => {
+      if (err) {
+        handleResponse(res, 500, { error: "Internal Server Error" });
+      } else {
+        handleResponse(res, 200, { message: "Order updated" });
+      }
+    }
+  );
+});
+
+// UPDATE STATUS BY ID
+router.patch("/:id", verifyToken, (req, res) => {
+  const orderId = req.params.id;
+  const newStatus = req.body.status;
+
+  const query = "UPDATE orders SET status = ? WHERE id = ?";
+
+  connection.query(query, [newStatus, orderId], (err) => {
+    if (err) {
+      handleResponse(res, 500, { error: "Internal Server Error" });
+    } else {
+      if (newStatus === "validated") {
+        // TODO: Vérifier le stock et mettre à jour les points de fidélité ici
+        handleResponse(res, 200, { message: "Order updated" });
+      } else {
+        handleResponse(res, 200, { message: "Order updated" });
+      }
+    }
+  });
+});
+
+// READ ONE BY ID
+router.get("/:id", verifyToken, (req, res) => {
+  const orderId = req.params.id;
+  const query = "SELECT * FROM orders WHERE id = ?";
+
+  connection.query(query, [orderId], (err, rows) => {
+    if (err) {
+      handleResponse(res, 500, { error: "Internal Server Error" });
+    } else {
+      handleResponse(res, 200, rows);
+    }
   });
 });
 

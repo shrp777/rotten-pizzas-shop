@@ -1,18 +1,13 @@
-/**
- * 🚨 Attention, le code présent dans ce fichier contient volontairement de nombreuses imperfections :
- * 🚨 erreurs de conception, mauvaises pratiques de développement logiciel, failles de sécurité et de performance.
- * 🚨 Ce code servira de support à un exercice de refactoring.
- */
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const mysql = require("mysql");
 
-var mysql = require("mysql");
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "db",
   user: "rps",
   password: "azerty",
-  database: "rps"
+  database: "rps",
 });
 
 connection.connect();
@@ -20,100 +15,108 @@ connection.connect();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
-//test son
-//CREATE
+// Fonction pour gérer les erreurs
+function handleResponse(res, error, result) {
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  } else {
+    res.status(200).json(result);
+  }
+}
+
+// CREATE
 router.post("/", function (req, res) {
-  console.log(req.headers.authorization) 
+  console.log(req.headers.authorization);
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
-    connection.query(
-      `INSERT INTO pizzas (name, price, available) VALUES ("${req.body.name}", ${req.body.price}, ${req.body.available})`,
-      (err, rows, fields) => {
-        if (err) console.log(err);
+    if (err) {
+      res.status(401).json({ error: "Unauthorized" });
+    } else {
+      const pizza = {
+        name: req.body.name,
+        price: req.body.price,
+        available: req.body.available,
+      };
 
-        res.json("created");
-      }
-    );
+      connection.query(
+        `INSERT INTO pizzas (name, price, available) VALUES (?, ?, ?)`,
+        [pizza.name, pizza.price, pizza.available],
+        (err, result) => {
+          handleResponse(res, err, "Pizza created");
+        }
+      );
+    }
   });
 });
 
-//READ ALL
+// READ ALL
 router.get("/", function (req, res) {
-  //FILTER BY NAME
+  let query = "SELECT * FROM pizzas WHERE available = 1";
+
   if (req.query.name) {
-    const query = `SELECT * FROM pizzas WHERE name = "${req.query.name}"`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(rows);
-    });
+    query = "SELECT * FROM pizzas WHERE name = ? AND available = 1";
   } else if (req.query.available) {
-    const query = `SELECT * FROM pizzas WHERE available = ${req.query.available}`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json(rows);
-    });
-  } else {
-    connection.query(
-      "SELECT * FROM pizzas WHERE available = 1",
-      (err, rows, fields) => {
-        if (err) console.log(err);
-
-        res.json(rows);
-      }
-    );
+    query = "SELECT * FROM pizzas WHERE available = ?";
   }
+
+  connection.query(query, [req.query.name || req.query.available], (err, rows) => {
+    handleResponse(res, err, rows);
+  });
 });
 
-//UPDATE ONE BY ID
+// UPDATE ONE BY ID
 router.put("/:id", function (req, res) {
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
+    if (err) {
+      res.status(401).json({ error: "Unauthorized" });
+    } else {
+      const pizza = {
+        id: req.params.id,
+        name: req.body.name,
+        price: req.body.price,
+        available: req.body.available,
+      };
 
-    const query = `UPDATE pizzas SET id = ${req.body.id}, name = "${req.body.name}", price = ${req.body.price}, available = ${req.body.available} WHERE id = ${req.body.id}`;
-
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-
-      res.json("updated");
-    });
+      connection.query(
+        `UPDATE pizzas SET name = ?, price = ?, available = ? WHERE id = ?`,
+        [pizza.name, pizza.price, pizza.available, pizza.id],
+        (err, result) => {
+          handleResponse(res, err, "Pizza updated");
+        }
+      );
+    }
   });
 });
 
-//READ ONE BY ID
+// READ ONE BY ID
 router.get("/:id", function (req, res) {
-  console.log('toto')
-  const query = `SELECT * FROM pizzas WHERE available = 1 AND id =${req.params.id}`;
+  const query = "SELECT * FROM pizzas WHERE id = ? AND available = 1";
 
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err);
-
-    res.json(rows);
+  connection.query(query, [req.params.id], (err, rows) => {
+    handleResponse(res, err, rows);
   });
 });
 
-//DELETE
+// DELETE
 router.delete("/:id", function (req, res) {
   let token = req.headers.authorization.split(" ")[1];
 
   jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-    if (err) res.json("unauthorized");
-
-    connection.query(
-      `DELETE FROM pizzas WHERE id = ${req.params.id}`,
-      (err, rows, fields) => {
-        if (err) console.log(err);
-
-        res.json("deleted");
-      }
-    );
+    if (err) {
+      res.status(401).json({ error: "Unauthorized" });
+    } else {
+      connection.query(
+        `DELETE FROM pizzas WHERE id = ?`,
+        [req.params.id],
+        (err, result) => {
+          handleResponse(res, err, "Pizza deleted");
+        }
+      );
+    }
   });
 });
 

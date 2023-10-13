@@ -11,14 +11,7 @@ const express = require("express");
 const router = express.Router();
 
 var mysql = require("mysql");
-var connection = mysql.createConnection({
-  host: "db",
-  user: "rps", 
-  password: "azerty",  
-  database: "rps"
-});
-
-connection.connect();
+const connection = require("../database")
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));

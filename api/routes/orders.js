@@ -9,14 +9,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 
 var mysql = require("mysql");
-var connection = mysql.createConnection({
-  host: "db",
-  user: "rps",
-  password: "azerty",
-  database: "rps"
-});
+const connection = require("../database")
 
-connection.connect();
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
@@ -193,4 +187,4 @@ router.get("/:id", function (req, res) {
   });
 });
 
-module.exports = router;
+module.exports = router; 
